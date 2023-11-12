@@ -4,6 +4,7 @@
 - [なぜRustなの？と言われた時のために](https://zenn.dev/khale/articles/rust-beginners-catchup#rust-%E3%81%AF%E3%82%A8%E3%83%A9%E3%83%BC%E5%87%A6%E7%90%86%E3%81%8C%E5%88%86%E3%81%8B%E3%82%8A%E3%82%84%E3%81%99%E3%81%84)
 - [Rust入門](https://zenn.dev/mebiusbox/books/22d4c1ed9b0003)
 - [公式ドキュメント](https://doc.rust-lang.org/book/)
+- [Rustツアー](https://tourofrust.com/00_ja.html)
 
 ## Rustの概要
 1. メモリ安全な言語
@@ -130,7 +131,7 @@
     }
     ```
 
-  - 直和型
+    - 直和型
     ___
     取りうるすべての型の網羅。TypeScriptではa = number | stringのように表現される。
     直和型とは、いくつかの方のうち一つだけを保持するような型。
@@ -225,32 +226,51 @@
         }
         ```
 
-- エラー処理がわかりやすい
+   - エラー処理がわかりやすい
 
-    - 検査例外
+       - 検査例外
 
-        以下の２つの列挙型を返り値とすることで実現される。
-        ```Rust:
-        pub enum Result<T, E> {
-            OK(T),
-            Err(E),
-        }
+           以下の２つの列挙型を返り値とすることで実現される。
+           ```Rust:
+           pub enum Result<T, E> {
+               OK(T),
+               Err(E),
+           }
 
-        pub enum Option<T> {
-            None,
-            Some(T),
-        }
-        ```
-        Result
+           pub enum Option<T> {
+               None,
+               Some(T),
+           }
+           ```
 
-    - 非検査例外
+           ResultとOptionが列挙型で実装されているので、パターンマッチング記法が使える。
+           Resultは、2つのジェネリクス定義が必要だが、ほとんどの場合Create内でラップされており、返り値のみ指定すれば良い。
+           ```Rust:
+           pub fn add_task(task: String) -> Result<String> {
+               // タスクの処理
+           }
 
-        panic!を発生することで実現される。
-        panic!が発生すると、デフォルトではこれまで確保したメモリ等を自動的に開放していく。
-        ```Rust:
-        fn main() {
-            panic!("crash and burn");
-        }
-        ```
+           pub fn any() -> Result<String> {
+               let ret = match add_task("new task") {
+                   Ok(ret) => ret,
+                   Err(e) => retrun Err(e),
+               };
 
+               // retを使った処理
+           }
+           ```
 
+       - 非検査例外
+
+           panic!を発生することで実現される。
+           panic!が発生すると、デフォルトではこれまで確保したメモリ等を自動的に開放していく。
+           ```Rust:
+           fn main() {
+               panic!("crash and burn");
+           }
+           ```
+
+       - Rustのエラー処理まとめ
+         - 検査例外と非検査例外の定義がはっきりしている
+         - エラー用の型が定まっていることで返り値にエラーを含むため、修復すべき握りつぶしが発生しづらい
+         - GoToによるスパゲッティコードを産まず、保守性の高いコードがかける
